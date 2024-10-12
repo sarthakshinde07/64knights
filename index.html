@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>64Knights</title>
+	<style>
+		:root{
+			--img:url("wN01.svg");
+			--w-sqr-color:#F4E2C3;
+			--b-sqr-color:#C49A77;
+		}
+		*{user-select: none;}
+		html{
+			background-image: linear-gradient(var(--w-sqr-color),var(--b-sqr-color));
+			height:100%;
+		}
+		#score{
+			text-align: center;
+			font-weight: bold;
+			font-size: 1.8rem;
+			margin-top: 10px;
+		}
+		#grid {
+			border: 2px solid var(--w-sqr-color);
+			border-radius: 4px;
+			display: grid;
+			grid-template: repeat(8,1fr) / repeat(8,1fr);
+		}
+		.square {
+			aspect-ratio: 1/1;
+			font-family: monospace;
+			font-size: .8em;
+			transition:.25s;
+			background-color: var(--w-sqr-color);
+		}
+		.bsquare{ /* Black Square */
+			background-color:var(--b-sqr-color);
+		}
+		.square span{
+			/*
+			display:none;
+			*/
+		}
+		.bg-horse{
+			background-image: var(--img);
+		  background-size: 90%;
+		  background-repeat: no-repeat;
+		  background-position: center;
+		  
+		}
+		.hl{
+			box-shadow: 0 0 10px rgb(255,226,26) inset,0 0 4px rgb(255,231,68);
+		}
+		.marked{
+			border:2px solid hotpink;
+		}
+	</style>
+</head>
+<body>
+	<h1>64 Knights 🐴</h1>
+	<hr>
+	<div id="grid"></div>
+	<div id="score">0</div> <hr>
+	<!--
+	<input type="button" value="runn" onClick="run();">
+	-->
+	<input type="button" value="Horse Skin" onClick="swapHorseSkin();">
+    <input type="button" value="Change Theme" onClick="swapTheme();">
+    Marker <input type="checkbox" id="cbox" />
+	
+	<script>
+// cellCount= total Horses 🐴
+		var cellCount = 0; 
+		
+		
+//------| Drawing/Rendering 64 Squares |---
+
+		const grid = document.getElementById("grid");
+		var colorFlag=false;
+		
+		for (var i = 1; i <= 64; i++) {
+			
+			// Fill same color if its 1st cell of the row.
+			if((i-1)%8==0) colorFlag=!colorFlag;
+			
+			if(colorFlag)
+			grid.innerHTML += '<div data-id="'+i+'" class="square"><span>'+'</span></div>';
+			else
+			grid.innerHTML += '<div data-id="'+i+'" class="square bsquare"><span>'+'</span></div>';
+			
+			colorFlag=!colorFlag;
+		}
+
+//----------| Adding Click Event |---
+		var squares = document.getElementsByClassName("square");
+		for (var i = 0; i < 64; i++) {
+			squares[i].addEventListener("click", function() {
+				moveHere(this);
+			});
+		}
+
+
+//---------| Spawning Horses |----
+		const score=document.getElementById("score");
+		
+		function moveHere(element) {
+			if(document.getElementById("cbox").checked){
+				element.classList.toggle("marked");
+				return;
+			}
+			let cell_id = element.dataset.id;
+			let gap= topId() - cell_id;
+			/*
+			console.log("gap:"+gap,
+				topId(),
+				(topId())%8);
+			*/
+				
+		    if( topId()==0 ||(
+				(cell_id==topId()) ||
+				((gap==17 || gap==-15)&& ((topId()-1)%8)) ||
+				((gap==-10 || gap==6) && (topId()%8) && ((topId()+1)%8)) ||
+				((gap==-6 ||gap==10) && ((topId()-1)%8) && ((topId()-2)%8)) ||
+				((gap==15||gap== -17)&&(topId()%8))
+			 )){
+			 	
+			if(topId()==cell_id && element.classList.contains("bg-horse")){
+					element.classList.remove("bg-horse");
+					element.children[0].innerHTML="";
+					pop();
+					cellCount+=-1;
+			}
+			else if(!element.classList.contains("bg-horse")){
+					element.classList.add("bg-horse");
+					cellCount+=1;
+					element.children[0].innerHTML=cellCount;
+					push(Number(cell_id));
+			}
+			score.innerHTML=cellCount;
+			didWon();
+			}
+		}
+		
+		function didWon(){
+			if(cellCount==64) alert("You won");
+		}
+		
+//---| Modified Stack-ish sys to store moves |---
+		var moveArray={};
+		var topIndex=-1;
+		function topId(){
+			if(topIndex<0) return 0;
+			return moveArray[topIndex];
+		}
+		function push(i){
+			
+			//highlight(moveArray[topIndex]);
+			highlight(topId());
+			topIndex++;
+			moveArray[topIndex]=i;
+			highlight(i);
+		}
+		function pop(){
+			if(topIndex<0){return 0;}
+			highlight(moveArray[topIndex]);
+			moveArray[topIndex]=0;
+			topIndex--;
+			highlight(topId());
+			return topId();
+		}
+//---| last horse glow-up and run() & themes |-----
+		function highlight(id){
+			if(!id) return;
+			squares[id-1].classList.toggle("hl");
+		}
+
+		function run(){
+			for(var i=0;i<64;i++){
+				squares[i].click();
+			}
+		}
+		
+		var j=1;
+		function swapHorseSkin(){
+			j++;
+			if(j>5)j=1;
+			document.querySelector(':root').style.setProperty('--img', 'url(wN'+((j<10)?'0'+j:j)+'.svg)');
+		}
+		
+		var colors=["#F4E2C3","#C49A77","white","lightpink","#FFF3F3","#BD4444","#EDEDED","#355071","#A9A9A9","#888888","#FFFEE5","#98B479","#E5EAEC","#9EB2BC","white","black"];
+		var itheme=0;
+		function swapTheme(){
+			itheme+=2;
+			if(itheme>14)itheme=0;
+			document.querySelector(':root').style.setProperty('--w-sqr-color', colors[itheme]);
+			document.querySelector(':root').style.setProperty('--b-sqr-color', colors[itheme+1]);
+		}
+	</script>
+</body>
+</html>
+
