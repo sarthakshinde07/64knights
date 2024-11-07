@@ -1,5 +1,4 @@
-64 Knights
- - This is a chess varient.
+Knights Tour(64Knights)
  - Goal : Reach every square with no repetition.
- - Undo : Clicking the same knight
+ - Undo : Click highlighted knight.
  - Marker : ~
