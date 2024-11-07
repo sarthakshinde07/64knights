@@ -26,6 +26,7 @@
 			border-radius: 4px;
 			display: grid;
 			grid-template: repeat(8,1fr) / repeat(8,1fr);
+			margin-inline: auto;
 		}
 		.square {
 			aspect-ratio: 1/1;
@@ -55,6 +56,12 @@
 		.marked{
 			border:2px solid hotpink;
 		}
+		@media (min-aspect-ratio: 1/1){
+			#grid{
+				height:70vh;
+				width:70vh;
+			}
+		}
 	</style>
 </head>
 <body>
@@ -78,18 +85,14 @@
 
 		const grid = document.getElementById("grid");
 		var colorFlag=false;
-		
-		for (var i = 1; i <= 64; i++) {
-			
-			// Fill same color if its 1st cell of the row.
-			if((i-1)%8==0) colorFlag=!colorFlag;
-			
-			if(colorFlag)
-			grid.innerHTML += '<div data-id="'+i+'" class="square"><span>'+'</span></div>';
-			else
-			grid.innerHTML += '<div data-id="'+i+'" class="square bsquare"><span>'+'</span></div>';
-			
-			colorFlag=!colorFlag;
+		var sqno=0;
+		for (var i = 1; i <= 8; i++) {
+			for(var j=1;j<=8;j++){
+				grid.innerHTML += '<div data-id="'+(++sqno)+'" data-x="'+i+'" data-y="'+j+'" class="square '+((colorFlag)?"":"bsquare")+'"><span>'+'</span>'+'</div>';
+
+				colorFlag=!colorFlag;
+			}
+				colorFlag=!colorFlag;
 		}
 
 //----------| Adding Click Event |---
@@ -161,6 +164,12 @@
 			moveArray[topIndex]=i;
 			highlight(i);
 		}
+		function print(){
+			let str="";
+			for(var i=0;i<topIndex+1;i++)
+				str+=moveArray[i]+" ";
+			navigator.clipboard.writeText(moveArray);
+		}
 		function pop(){
 			if(topIndex<0){return 0;}
 			highlight(moveArray[topIndex]);
@@ -199,4 +208,3 @@
 	</script>
 </body>
 </html>
-
